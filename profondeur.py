@@ -1,85 +1,72 @@
-from pathlib import Path
+import time
 
-Folder = Path(r"C:\Users\david\ia\devoir\jigsaw-mystery-solver\input-Ex1")
-TARGET = [1, 2, 3, 4, 5, 6, 7, 8, 0]
-
-
-def readState(file):
-    state = []
-
-    for line in file.read_text(encoding="utf-8").splitlines():
-        if line.strip():
-            state += [0 if x.strip() == "" else int(x) for x in line.split("\t")]
-
-    return state
+from puzzle_state import is_solvable, write_log
 
 
-def isSolvable(state):
-    tiles = [x for x in state if x != 0]
-    inversions = sum(tiles[i] > tiles[j]
-                     for i in range(8)
-                     for j in range(i + 1, 8))
-    return inversions % 2 == 0
+# ============================================================
+# Recherche en profondeur (DFS)
+# ============================================================
 
+def dfs(initial_state, goal_board, log_file=None):
+    """
+    Recherche en profondeur (Depth-First Search), non récursive.
 
-def dfs(start):
-    if not isSolvable(start):
-        return None
+    - initial_state : un PuzzleState (état de départ)
+    - goal_board     : la liste représentant l'état objectif
+    - log_file       : chemin (Path) où écrire le journal
+                       d'exécution, ou None pour ne rien écrire
 
-    stack = [(start, [start])]
-    visited = {tuple(start)}
+    Retourne le PuzzleState final, ou None si aucune solution
+    n'a été trouvée.
+    """
 
-    while stack:
-        state, path = stack.pop()
+    start_time = time.time()
 
-        if state == TARGET:
-            return path
+    result = None
+    nodes_explored = 0
+    iteration_log = []
 
-        zero = state.index(0)
-        row, col = divmod(zero, 3)
+    if not is_solvable(initial_state.board):
 
-        for move in (-1, 1, -3, 3):
-            new = zero + move
+        result = None
 
-            if not 0 <= new < 9:
-                continue
-
-            new_row, new_col = divmod(new, 3)
-
-            if abs(row - new_row) + abs(col - new_col) != 1:
-                continue
-
-            neighbor = state[:]
-            neighbor[zero], neighbor[new] = neighbor[new], neighbor[zero]
-
-            if tuple(neighbor) not in visited:
-                visited.add(tuple(neighbor))
-                stack.append((neighbor, path + [neighbor]))
-
-    return None
-
-
-def printSolution(path):
-    for state in path:
-        print("\n".join(" ".join(map(str, state[i:i+3]))
-                        for i in range(0, 9, 3)))
-        print("-----")
-
-
-for file in sorted(Folder.glob("*.txt")):
-    start = readState(file)
-
-    print(f"\n=== {file.name} ===")
-    print(start)
-
-    if len(start) != 9:
-        print("État invalide")
-        continue
-
-    solution = dfs(start)
-
-    if solution:
-        printSolution(solution)
-        print(f"Solved in {len(solution) - 1} moves.")
     else:
-        print("No solution found.")
+
+        stack = [initial_state]
+        visited = {tuple(initial_state.board)}
+
+        iteration = 0
+
+        while stack:
+
+            state = stack.pop()
+            nodes_explored += 1
+            iteration += 1
+
+            if state.board == goal_board:
+                result = state
+                iteration_log.append(f"{iteration}\t{len(stack)}")
+                break
+
+            for neighbor in state.get_neighbors():
+
+                key = tuple(neighbor.board)
+
+                if key not in visited:
+                    visited.add(key)
+                    stack.append(neighbor)
+
+            # Taille de la frontière (pile) après
+            # l'expansion de cet état
+            iteration_log.append(f"{iteration}\t{len(stack)}")
+
+    elapsed = time.time() - start_time
+
+    write_log(
+        log_file,
+        iteration_log,
+        nodes_explored,
+        elapsed
+    )
+
+    return result

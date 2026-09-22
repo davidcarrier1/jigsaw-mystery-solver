@@ -1,72 +1,73 @@
-from pathlib import Path
+import time
 
-Folder = Path(r"C:\Users\david\OneDrive\Documents\lab ia\jigsaw-mystery-solver\input-Ex1")
-
-
-def readState(File):
-    content = File.read_text(encoding="utf-8")
-    startState = []
-
-    for line in content.splitlines():
-        if not line.strip():          
-            continue
-        values = line.split("\t")
-
-        for value in values:
-            value = value.strip()
-            if value == "":
-                startState.append(0)
-            else:
-                startState.append(int(value))
-
-    return startState
+from puzzle_state import is_solvable, write_log
 
 
-def bfs(startState):
-    target = [1, 2, 3, 4, 5, 6, 7, 8, 0]
-    queue = [startState]
-    visited = {tuple(startState): None}
+# ============================================================
+# Recherche en largeur (BFS)
+# ============================================================
 
-    while queue:
-        state = queue.pop(0)  # FIFO: take the oldest state (front of the list)
-        if state == target:
-            path = []
-            while state:
-                path.append(state)
-                state = visited[tuple(state)]
-            return path[::-1]
+def bfs(initial_state, goal_board, log_file=None):
+    """
+    Recherche en largeur (Breadth-First Search).
 
-        zero = state.index(0)
-        row, col = divmod(zero, 3)
-        for move in (-3, 3, -1, 1):
-            new_row, new_col = divmod(zero + move, 3)
-            if 0 <= new_row < 3 and 0 <= new_col < 3 and abs(row - new_row) + abs(col - new_col) == 1:
-                neighbor = state[:]
-                neighbor[zero], neighbor[zero + move] = neighbor[zero + move], neighbor[zero]
-                if tuple(neighbor) not in visited:
-                    visited[tuple(neighbor)] = state
+    - initial_state : un PuzzleState (état de départ)
+    - goal_board     : la liste représentant l'état objectif
+    - log_file       : chemin (Path) où écrire le journal
+                       d'exécution, ou None pour ne rien écrire
+
+    Retourne le PuzzleState final (à partir duquel on peut
+    reconstruire le chemin avec get_solution_path), ou None
+    si aucune solution n'a été trouvée.
+    """
+
+    start_time = time.time()
+
+    result = None
+    nodes_explored = 0
+    iteration_log = []
+
+    if not is_solvable(initial_state.board):
+
+        result = None
+
+    else:
+
+        queue = [initial_state]
+        visited = {tuple(initial_state.board)}
+
+        iteration = 0
+
+        while queue:
+
+            state = queue.pop(0)  # FIFO : on prend le plus ancien état
+            nodes_explored += 1
+            iteration += 1
+
+            if state.board == goal_board:
+                result = state
+                iteration_log.append(f"{iteration}\t{len(queue)}")
+                break
+
+            for neighbor in state.get_neighbors():
+
+                key = tuple(neighbor.board)
+
+                if key not in visited:
+                    visited.add(key)
                     queue.append(neighbor)
 
-    return None
+            # Taille de la frontière (file d'attente) après
+            # l'expansion de cet état
+            iteration_log.append(f"{iteration}\t{len(queue)}")
 
+    elapsed = time.time() - start_time
 
-def printSolution(path):
-    for state in path:
-        print("\n".join(' '.join(map(str, state[i:i+3])) for i in range(0, 9, 3)), end="\n-----\n")
+    write_log(
+        log_file,
+        iteration_log,
+        nodes_explored,
+        elapsed
+    )
 
-
-for File in Folder.glob("*.txt"):
-    startState = readState(File)
-    print(f"\n=== {File.name} ===")
-    print(startState)
-
-    if len(startState) != 9:
-        print(f"Expected 9 values, got {len(startState)}. Skipping.")
-        continue
-
-    solution = bfs(startState)
-    if solution:
-        printSolution(solution)
-        print(f"Solved in {len(solution) - 1} moves.")
-    else:
-        print("No solution found.")
+    return result
