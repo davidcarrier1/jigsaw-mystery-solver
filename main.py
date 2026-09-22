@@ -120,9 +120,7 @@ def main():
         "\nChoisissez une option : "
     )
 
-    # --------------------------------------------------
     # BFS
-    # --------------------------------------------------
 
     if choice == "1":
 
@@ -134,9 +132,7 @@ def main():
             project_folder
         )
 
-    # --------------------------------------------------
     # DFS
-    # --------------------------------------------------
 
     elif choice == "2":
 
@@ -148,9 +144,7 @@ def main():
             project_folder
         )
 
-    # --------------------------------------------------
     # IDDFS
-    # --------------------------------------------------
 
     elif choice == "3":
 
@@ -162,9 +156,7 @@ def main():
             project_folder
         )
 
-    # --------------------------------------------------
     # Quitter
-    # --------------------------------------------------
 
     elif choice == "4":
 
@@ -180,11 +172,6 @@ def main():
 
 
 def run_algorithm(prefix, algorithm, initial_state, selected_file, project_folder):
-    """
-    Exécute un algorithme de recherche 10 fois de suite (en
-    écrivant un journal par exécution), puis affiche la
-    dernière solution trouvée.
-    """
 
     print(
         f"\nExécution de la recherche en {prefix} "

@@ -22,4 +22,3 @@ La recherche par approfondissement effectue des recherches en profondeurs comme 
 On a eu de la facilité à implémenter l'algorithme de recherche en largeur mais on a eu plus de difficulté lorsqu'on est arrivé à l'algo de profondeur. Une fois qu'on a compris les deux cependant, l'algorithmes d'appronfondissement, qui est techniquement plus complexe, à été relativement facile puisqu'il combine les principes du BFS et DFS. En ajoutant le principe de depth limited search, on peut effectuer la recherche en profondeur progressivement.
 
 ### Autres critères
-

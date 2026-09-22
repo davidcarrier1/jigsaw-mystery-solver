@@ -1,16 +1,8 @@
-# ============================================================
-# puzzle_state.py
-# Fonctions et classe communes aux trois algorithmes de
-# recherche (BFS, DFS, IDDFS) pour le 8-puzzle.
-# ============================================================
-
-
 # État objectif du 8-puzzle
 GOAL_STATE = [1, 2, 3, 4, 5, 6, 7, 8, 0]
 
 
 # Noms des mouvements possibles et leur déplacement
-# dans le tableau (index de la case vide).
 MOVES = {
     "Haut": -3,
     "Bas": 3,
@@ -19,18 +11,8 @@ MOVES = {
 }
 
 
-# ============================================================
 # Classe représentant un état du puzzle
-# ============================================================
-
 class PuzzleState:
-    """
-    Représente un état du 8-puzzle.
-
-    - board  : liste de 9 entiers (0 = case vide)
-    - parent : l'état précédent (pour reconstruire le chemin)
-    - move   : le mouvement qui a mené à cet état
-    """
 
     def __init__(self, board, parent=None, move=None):
         self.board = board
@@ -53,10 +35,7 @@ class PuzzleState:
         return self.board.index(0)
 
     def get_neighbors(self):
-        """
-        Retourne la liste des états voisins accessibles
-        depuis cet état (un déplacement de la case vide).
-        """
+       
 
         neighbors = []
 
@@ -88,16 +67,8 @@ class PuzzleState:
 
         return neighbors
 
-
-# ============================================================
-# Lecture d'un fichier d'état initial
-# ============================================================
-
 def read_initial_state(file_path):
-    """
-    Lit un fichier .txt et retourne un PuzzleState correspondant
-    à l'état initial décrit dans ce fichier.
-    """
+    #Lit un fichier .txt et retourne un PuzzleState correspondant à l'état initial décrit dans ce fichier.
 
     content = file_path.read_text(encoding="utf-8")
 
@@ -131,18 +102,8 @@ def read_initial_state(file_path):
     return PuzzleState(board)
 
 
-# ============================================================
-# Vérifier si un puzzle est solvable
-# ============================================================
-
+# Vérifier si un puzzle est solvable par inversions https://www.cs.princeton.edu/courses/archive/spr18/cos226/assignments/8puzzle/index.html
 def is_solvable(board):
-    """
-    Détermine si un état du 8-puzzle peut être résolu, en
-    comptant le nombre d'inversions parmi les tuiles
-    (sans la case vide). Le puzzle est solvable si ce
-    nombre est pair.
-    """
-
     tiles = [x for x in board if x != 0]
 
     inversions = sum(
@@ -154,18 +115,8 @@ def is_solvable(board):
 
     return inversions % 2 == 0
 
-
-# ============================================================
-# Reconstruire le chemin de la solution
-# ============================================================
-
 def get_solution_path(state):
-    """
-    Remonte la chaîne des parents à partir de l'état final
-    et retourne la liste des mouvements ("Haut", "Bas", ...)
-    dans l'ordre pour aller de l'état initial à l'état final.
-    """
-
+ 
     moves = []
 
     while state is not None and state.parent is not None:
@@ -176,20 +127,7 @@ def get_solution_path(state):
 
     return moves
 
-
-# ============================================================
-# Écriture du journal d'exécution
-# ============================================================
-
 def write_log(log_file, iteration_log, nodes_explored, elapsed):
-    """
-    Écrit le journal d'exécution au format suivant :
-
-    - À partir de la première ligne : une ligne par itération,
-      "numéro_itération \t taille_de_frontière"
-    - Avant-dernière ligne : nombre_global_d_états_explorés
-    - Dernière ligne : temps_d_exécution (en secondes)
-    """
 
     if log_file is None:
         return
@@ -202,17 +140,8 @@ def write_log(log_file, iteration_log, nodes_explored, elapsed):
         f.write(f"{nodes_explored}\n")
         f.write(f"{elapsed:.6f}\n")
 
-
-# ============================================================
-# Affichage d'une solution (liste d'états)
-# ============================================================
-
 def print_solution(state):
-    """
-    Affiche, du premier au dernier, tous les états menant
-    de l'état initial à l'état final (utile pour le débogage).
-    """
-
+  
     path_states = []
 
     while state is not None:
