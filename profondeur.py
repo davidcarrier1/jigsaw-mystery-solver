@@ -2,23 +2,7 @@ import time
 
 from puzzle_state import is_solvable, write_log
 
-
-# ============================================================
-# Recherche en profondeur (DFS)
-# ============================================================
-
 def dfs(initial_state, goal_board, log_file=None):
-    """
-    Recherche en profondeur (Depth-First Search), non récursive.
-
-    - initial_state : un PuzzleState (état de départ)
-    - goal_board     : la liste représentant l'état objectif
-    - log_file       : chemin (Path) où écrire le journal
-                       d'exécution, ou None pour ne rien écrire
-
-    Retourne le PuzzleState final, ou None si aucune solution
-    n'a été trouvée.
-    """
 
     start_time = time.time()
 
@@ -56,8 +40,7 @@ def dfs(initial_state, goal_board, log_file=None):
                     visited.add(key)
                     stack.append(neighbor)
 
-            # Taille de la frontière (pile) après
-            # l'expansion de cet état
+            # Taille de la frontière
             iteration_log.append(f"{iteration}\t{len(stack)}")
 
     elapsed = time.time() - start_time

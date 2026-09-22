@@ -2,19 +2,7 @@ import time
 
 from puzzle_state import is_solvable, write_log
 
-
-# ============================================================
-# Recherche en profondeur limitée (version itérative, avec pile)
-# ============================================================
-
 def _depth_limited_search(initial_state, goal_board, limit, state, iteration_log):
-    """
-    Effectue une recherche en profondeur limitée à `limit`, en
-    partant de `initial_state`. `state` (une liste à un élément)
-    contient le compteur global d'itérations, partagé entre les
-    différents appels (un par palier de profondeur).
-    """
-
     stack = [initial_state]
     depth_map = {tuple(initial_state.board): 0}
 
@@ -43,35 +31,15 @@ def _depth_limited_search(initial_state, goal_board, limit, state, iteration_log
                     depth_map[key] = depth + 1
                     stack.append(neighbor)
 
-        # Taille de la frontière (pile) après
-        # l'expansion de ce noeud
+        # Taille de la frontière
         iteration_log.append(
             f"{state['iteration']}\t{len(stack)}"
         )
 
     return None
 
-
-# ============================================================
-# Approfondissement itératif (IDDFS)
-# ============================================================
-
-def iddfs(initial_state, goal_board, log_file=None, max_limit=31):
-    """
-    Approfondissement itératif (Iterative Deepening DFS).
-
-    - initial_state : un PuzzleState (état de départ)
-    - goal_board     : la liste représentant l'état objectif
-    - log_file       : chemin (Path) où écrire le journal
-                       d'exécution, ou None pour ne rien écrire
-    - max_limit      : profondeur maximale à essayer (le 8-puzzle
-                       possède au maximum une solution de 31
-                       mouvements)
-
-    Retourne le PuzzleState final, ou None si aucune solution
-    n'a été trouvée.
-    """
-
+#IDDFS (Iterative Deepening Depth-First Search) 
+def iddfs(initial_state, goal_board, log_file=None, max_limit=31): #limite de 31 car on sait que c'est le max https://www.cs.princeton.edu/courses/archive/spring20/cos226/assignments/8puzzle/checklist.php
     start_time = time.time()
 
     result = None
