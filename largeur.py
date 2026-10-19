@@ -1,33 +1,8 @@
-import heapq
 import time
 
 from puzzle_state import is_solvable, write_log
 
-
-def heuristic(board, goal_board):
-    #Distance de Manhattan
-    goal_pos = {tile: i for i, tile in enumerate(goal_board)}
-    distance = 0
-
-    for i, tile in enumerate(board):
-        if tile != 0:
-            row1, col1 = divmod(i, 3)
-            row2, col2 = divmod(goal_pos[tile], 3)
-            distance += abs(row1 - row2) + abs(col1 - col2)
-
-    return distance
-
-
-def heuristic2(board, goal_board):
-    #Nombre de pièces mal placees
-    return sum(
-        1
-        for i in range(9)
-        if board[i] != 0 and board[i] != goal_board[i]
-    )
-
-
-def a_etoile(initial_state, goal_board, log_file=None, h=heuristic):
+def bfs(initial_state, goal_board, log_file=None):
     start_time = time.time()
 
     result = None
@@ -40,59 +15,32 @@ def a_etoile(initial_state, goal_board, log_file=None, h=heuristic):
 
     else:
 
-        counter = 0  # départage les états de même f (PuzzleState n'a pas de __lt__)
-        start_key = tuple(initial_state.board)
-
-        open_list = []
-        heapq.heappush(
-            open_list,
-            (h(initial_state.board, goal_board), counter, 0, initial_state)
-        )
-
-        g_score = {start_key: 0}
-        closed = set()
+        queue = [initial_state]
+        visited = {tuple(initial_state.board)}
 
         iteration = 0
 
-        while open_list:
+        while queue:
 
-            f, _, g, state = heapq.heappop(open_list)
-
-            key = tuple(state.board)
-
-            # Entrée périmée : cet état a déjà été traité avec un meilleur coût
-            if key in closed:
-                continue
-
-            closed.add(key)
+            state = queue.pop(0)  # FIFO 
             nodes_explored += 1
             iteration += 1
 
             if state.board == goal_board:
                 result = state
-                iteration_log.append(f"{iteration}\t{len(open_list)}")
+                iteration_log.append(f"{iteration}\t{len(queue)}")
                 break
 
             for neighbor in state.get_neighbors():
 
-                n_key = tuple(neighbor.board)
+                key = tuple(neighbor.board)
 
-                if n_key in closed:
-                    continue
+                if key not in visited:
+                    visited.add(key)
+                    queue.append(neighbor)
 
-                new_g = g + 1
-
-                if new_g < g_score.get(n_key, float("inf")):
-                    g_score[n_key] = new_g
-                    counter += 1
-                    new_f = new_g + h(neighbor.board, goal_board)
-                    heapq.heappush(
-                        open_list,
-                        (new_f, counter, new_g, neighbor)
-                    )
-
-            # Taille de la frontière
-            iteration_log.append(f"{iteration}\t{len(open_list)}")
+            # Taille de la frontière 
+            iteration_log.append(f"{iteration}\t{len(queue)}")
 
     elapsed = time.time() - start_time
 
