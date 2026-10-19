@@ -1,4 +1,3 @@
-
 from pathlib import Path
 
 from puzzle_state import (
@@ -9,6 +8,7 @@ from puzzle_state import (
 from largeur import bfs
 from profondeur import dfs
 from approfondissement import iddfs
+from A import a_star_manhattan, a_star_misplaced
 
 
 # État objectif du 8-puzzle
@@ -114,7 +114,9 @@ def main():
     print("1 : Recherche en largeur (BFS)")
     print("2 : Recherche en profondeur (DFS)")
     print("3 : Approfondissement itératif (IDDFS)")
-    print("4 : Quitter")
+    print("4 : A* (distance de Manhattan)")
+    print("5 : A* (cases mal placées)")
+    print("6 : Quitter")
 
     choice = input(
         "\nChoisissez une option : "
@@ -156,9 +158,33 @@ def main():
             project_folder
         )
 
-    # Quitter
+    # A* Manhattan
 
     elif choice == "4":
+
+        run_algorithm(
+            "astar_manhattan",
+            a_star_manhattan,
+            initial_state,
+            selected_file,
+            project_folder
+        )
+
+    # A* cases mal placées
+
+    elif choice == "5":
+
+        run_algorithm(
+            "astar_misplaced",
+            a_star_misplaced,
+            initial_state,
+            selected_file,
+            project_folder
+        )
+
+    # Quitter
+
+    elif choice == "6":
 
         print(
             "\nAu revoir !"
